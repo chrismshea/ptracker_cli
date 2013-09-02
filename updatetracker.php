@@ -68,16 +68,37 @@ $helpers = new pivotalTrackerHelpers;
     if ($sOption == 'new'){
         fwrite(STDOUT, "\nStory Type (feature, bug, chore, release):\n");
         $sType = (trim(fgets(STDIN)));
+        if ($sType == 'bug'){
+            fwrite(STDOUT, "\nDo you want to attach all logs?:\n");
+            $sLogify = (trim(fgets(STDIN)));
+            if ($sLogify == 'yes'){
+
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
         fwrite(STDOUT, "\nStory Name:\n");
         $sName = (trim(fgets(STDIN)));
         fwrite(STDOUT, "\nStory Desc:\n");
         $sDesc = (trim(fgets(STDIN)));
         $story = $pivotaltracker->addStory("$token", "$project", "$sType", "$sName", "$sDesc");
+        echo "Created storyId: " . $story;
     } else {
         $story = $sOption;
-
+        //Logify Yes / No
+        if ($sLogify == 1){
+            echo "ugh";
+        } else {
+        //Status
+        //Comment
+        //Tasks
+        //Attachment
+        }
+        $pivotaltracker->updateStory($token,$project,$story,$sStatus,$sComment,$sTask,$sAttachment);
+        echo "Updated storyId: " . $story;
     }
-echo "Created storyId: " . $story;
 
 echo "\nWhat happened?\n";
 die;
