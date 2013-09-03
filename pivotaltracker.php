@@ -18,7 +18,7 @@
         // addStory
         // -----
         // Add a story to an existing project
-        public function addStory($token, $project, $sType, $sName, $sDesc) {
+        public function addStory($token, $project, $sType, $sName, $sDesc, $sComm, $pUploads) {
 
             // Encode the description
             $sDesc = htmlentities($sDesc);
@@ -32,8 +32,12 @@
                 . "-X POST -H \"Content-type: application/json\" "
                 . "-d '{\"name\":\"$sName\","
                 . "\"story_type\":\"$sType\","
-                . "\"description\":\"$sDesc\"}' "
+                . "\"description\":\"$sDesc\","
+                . "\"file_attachments\":[$pUploads],"
+                . "\"text\":\"$sComm\"}' "
                 . "\"https://www.pivotaltracker.com/services/v5/projects/$project/stories\"";
+            echo $cmd;
+            die;
             $json = shell_exec($cmd);
 
             // Return an object
@@ -83,12 +87,82 @@
 
         }
 
-
         // ----------
-        // addLabels
+        // addUploads
         // -----
-        // Add a label to an existing story.
-        public function addLabels($story, $labels) {
+        // Add uploads to a project, the response will be used to add a comment and attach to a story.
+        public function addUploads($token, $project, $sLogs) {
+
+            $tUploads = "https://www.pivotaltracker.com/services/v5/projects/$project/uploads";
+            $ch = curl_init();
+            foreach($sLogs as $sLog) {
+
+                // Let's establish the needed options for the post
+                curl_setopt_array($ch, array(
+                    CURLOPT_SSL_VERIFYHOST    => 1,
+                    CURLOPT_SSL_VERIFYPEER    => 0,
+                    CURLOPT_FOLLOWLOCATION    => 1,
+                    CURLINFO_SSL_VERIFYRESULT => 0,
+                    CURLOPT_VERBOSE           => 0,
+                    CURLOPT_ENCODING          => "",
+                    CURLOPT_POST              => 1,
+                    CURLOPT_HTTPHEADER        => array("X-TrackerToken: $token"),
+                    CURLOPT_POSTFIELDS        => array("file" => "@$sLog"),
+                    CURLOPT_URL               => $tUploads,
+                    CURLOPT_RETURNTRANSFER    => 1,
+                ));
+
+                // Ship IT! and capture the response
+                $pUploads = curl_exec($ch);
+                }
+            curl_close($ch);
+            var_dump($pUploads);
+            return $pUploads;
+            }
+
+            /**
+             * @param $story
+             * @param $labels
+             *             // We will first upload the attachments to the project
+            $trackerUploads = "https://www.pivotaltracker.com/services/v5/projects/$projectId/uploads";
+
+            foreach($mage_logs as $file) {
+
+            // We're going to need some curl
+            $ch = curl_init();
+
+            // Let's establish the needed options for the post
+            curl_setopt_array($ch, array(
+            CURLOPT_SSL_VERIFYHOST    => 1,
+            CURLOPT_SSL_VERIFYPEER    => 0,
+            CURLOPT_FOLLOWLOCATION    => 1,
+            CURLINFO_SSL_VERIFYRESULT => 0,
+            CURLOPT_VERBOSE           => 0,
+            CURLOPT_ENCODING          => "",
+            CURLOPT_POST              => 1,
+            CURLOPT_HTTPHEADER        => array("X-TrackerToken: b4b8aa330d2dbad607be9433dc2f0d77"),
+            CURLOPT_POSTFIELDS        => array("file" => "@/Users/chris/Sites/11202/var/log/system.log"),
+            CURLOPT_URL               => $trackerUploads,
+            CURLOPT_RETURNTRANSFER    => 1,
+            ));
+
+            // Ship IT! and capture the response
+            $response = curl_exec($ch);
+
+            // For Sanity when debugging let's show the response.
+            echo $response;
+
+            // Shut er down
+            curl_close($ch);
+            };
+             */
+
+
+            // ----------
+            // addLabels
+            // -----
+            // Add a label to an existing story.
+            public function addLabels($story, $labels) {
 
             // Make the fields safe
             $story = escapeshellcmd($story);

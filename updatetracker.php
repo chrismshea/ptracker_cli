@@ -72,7 +72,11 @@ $helpers = new pivotalTrackerHelpers;
             fwrite(STDOUT, "\nDo you want to attach all logs?:\n");
             $sLogify = (trim(fgets(STDIN)));
             if ($sLogify == 'yes'){
-
+                $sLogs = glob("$pFolder/var/{log,report}/*", GLOB_BRACE);
+                $sLogs[] = "/var/log/apache2/error.log";
+                echo "Uploading:" . " ";
+                print_r($sLogs);
+                $pUploads = $pivotaltracker->addUploads($token,$project,$sLogs);
             } else {
                 return true;
             }
@@ -83,7 +87,9 @@ $helpers = new pivotalTrackerHelpers;
         $sName = (trim(fgets(STDIN)));
         fwrite(STDOUT, "\nStory Desc:\n");
         $sDesc = (trim(fgets(STDIN)));
-        $story = $pivotaltracker->addStory("$token", "$project", "$sType", "$sName", "$sDesc");
+        fwrite(STDOUT, "\nStory Comment:\n");
+        $sComm = (trim(fgets(STDIN)));
+        $story = $pivotaltracker->addStory("$token", "$project", "$sType", "$sName", "$sDesc", "$sComm", "$pUploads");
         echo "Created storyId: " . $story;
     } else {
         $story = $sOption;
@@ -103,40 +109,4 @@ $helpers = new pivotalTrackerHelpers;
 echo "\nWhat happened?\n";
 die;
 
-// Let's establish some of the resources that we will need.
-$mage_logs = glob("/Users/chris/Sites/{$siteDir}/var/{log,report}/*", GLOB_BRACE);
-    $mage_logs[] = "/var/log/apache2/error.log";
-
-    // We will first upload the attachments to the project
-    $trackerUploads = "https://www.pivotaltracker.com/services/v5/projects/$projectId/uploads";
-
-    foreach($mage_logs as $file) {
-
-        // We're going to need some curl
-        $ch = curl_init();
-
-        // Let's establish the needed options for the post
-        curl_setopt_array($ch, array(
-            CURLOPT_SSL_VERIFYHOST    => 1,
-            CURLOPT_SSL_VERIFYPEER    => 0,
-            CURLOPT_FOLLOWLOCATION    => 1,
-            CURLINFO_SSL_VERIFYRESULT => 0,
-            CURLOPT_VERBOSE           => 0,
-            CURLOPT_ENCODING          => "",
-            CURLOPT_POST              => 1,
-            CURLOPT_HTTPHEADER        => array("X-TrackerToken: b4b8aa330d2dbad607be9433dc2f0d77"),
-            CURLOPT_POSTFIELDS        => array("file" => "@/Users/chris/Sites/11202/var/log/system.log"),
-            CURLOPT_URL               => $trackerUploads,
-            CURLOPT_RETURNTRANSFER    => 1,
-        ));
-
-        // Ship IT! and capture the response
-        $response = curl_exec($ch);
-
-        // For Sanity when debugging let's show the response.
-        echo $response;
-
-        // Shut er down
-        curl_close($ch);
-    };
 ?>
