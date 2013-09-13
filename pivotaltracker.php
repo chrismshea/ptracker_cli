@@ -33,15 +33,15 @@
                 . "-d '{\"name\":\"$sName\","
                 . "\"story_type\":\"$sType\","
                 . "\"description\":\"$sDesc\","
-                . "\"file_attachments\":[$pUploads],"
+                . "\"file_attachments\":[print_r($pUploads)],"
                 . "\"text\":\"$sComm\"}' "
                 . "\"https://www.pivotaltracker.com/services/v5/projects/$project/stories\"";
-            echo $cmd;
-            die;
-            $json = shell_exec($cmd);
+            print_r($cmd);
+            echo $json = shell_exec($cmd);
 
             // Return an object
             $json_array = json_decode($json,true);
+            echo $json_array;
             $story = $json_array['id'];
             return $story;
 
@@ -113,7 +113,7 @@
                 ));
 
                 // Ship IT! and capture the response
-                $pUploads = curl_exec($ch);
+                $pUploads[] = curl_exec($ch);
                 }
             curl_close($ch);
             var_dump($pUploads);

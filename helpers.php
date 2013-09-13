@@ -34,5 +34,15 @@ class pivotalTrackerHelpers {
         }
         return false;
     }
+    public function displayToken($token){
+        echo ("\nTOKEN INFO:\n"
+            . "    Token: " . $token . "\n"
+            . "    Found in: " . $this->tokenFile() . "\n");
+        return false;
+    }
+    public function hookFile($pRoot) {
+        $hFile = $pRoot . "/" . '.git/hooks/prepare-commit-msg';
+        return $hFile;
+    }
 }
 ?>
