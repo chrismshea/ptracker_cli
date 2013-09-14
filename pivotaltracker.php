@@ -51,8 +51,29 @@
         // ----------
         // addComment
         // -----
-        // Add a comment to a story with or without attachments
-        public function addComment($token, $pId, $sId, $sComm, $pUploadsString)
+        // Add a comment to an existing story
+        public function addComment($token, $pId, $sId, $sComm)
+
+        {
+            // Create the new story
+            $cmd = "curl -s -H \"X-TrackerToken: $token\" "
+                . "-X POST -H \"Content-type: application/json\" "
+                . "-d '{\"text\":\"$sComm\"}' "
+                . "\"https://www.pivotaltracker.com/services/v5/projects/$pId/stories/$sId/comments\"";
+            $json = shell_exec($cmd);
+
+            // Return an object
+            $json_array = json_decode($json,true);
+            $cResult = $json_array['text'];
+            return $cResult;
+        }
+
+
+        // ----------
+        // addAttachmentsWithComment
+        // -----
+        // Add uploads as attachments with comment
+        public function addAttachments($token, $pId, $sId, $sComm, $pUploadsString)
 
         {
             // Create the new story

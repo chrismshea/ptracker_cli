@@ -145,7 +145,7 @@ $helpers = new pivotalTrackerHelpers;
 
                 // Convert Uploads to a String and attach with comment
                     $pUploadsString = implode(",",$pUploads);
-                    $cResult = $pivotaltracker->addComment($token,$pId,$sId,$sComm,$pUploadsString);
+                    $cResult = $pivotaltracker->addAttachments($token,$pId,$sId,$sComm,$pUploadsString);
                     echo "\n    Comment: " . $cResult . "\n";
                 }
             }
@@ -153,14 +153,18 @@ $helpers = new pivotalTrackerHelpers;
     // Ok they have chosen to contribute to an existing story.
         else
         {
+            $sId = $sOption;
+        // Collect a comment for the story
             fwrite(STDOUT, "\n    Story Comment: ");
             $sComm = (trim(fgets(STDIN)));
-            $story = $sOption;
-            $pivotaltracker->updateStory($token,$project,$story,$sStatus,$sComment,$sTask,$sAttachment);
-            echo "Updated storyId: " . $story;
+            $cResult = $pivotaltracker->addComment($token,$pId,$sId,$sComm);
+            echo "    Updated storyId: " . $sId . "\n"
+                ."    With comment: " . $cResult . "\n";
         }
-    //Status
-    //Comment
-    //Tasks
-    //Attachment
+// Add Tasks
+//fwrite(STDOUT, "\n    Story Comment: ");
+//$sTask = (trim(fgets(STDIN)));
+// Add an attachment?
+//fwrite(STDOUT, "\n    Story Comment: ");
+//$sAttachment = (trim(fgets(STDIN)));
 ?>
