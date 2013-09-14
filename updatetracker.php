@@ -58,8 +58,8 @@ $helpers = new pivotalTrackerHelpers;
         {
             $pivotaltracker->token = $pivotaltracker->getToken();
         }
-        echo ($helpers->displayToken($token));
         $token = file_get_contents($helpers->tokenFile());
+        echo ($helpers->displayToken($token));
 
 
 /**

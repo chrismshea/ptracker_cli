@@ -302,7 +302,7 @@
 
             // Return an array
             $json_array = json_decode($json,true);
-            $token = $json_array[api_token];
+            $token = $json_array['api_token'];
 
             // Create a "yet another .file" that contains the users token
             $helpers = new pivotalTrackerHelpers();
