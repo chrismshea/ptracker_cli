@@ -312,7 +312,7 @@
             $helpers->createTokenFile($token);
 
             // Tell the lucky user their token has been saved
-            echo "Hey, we saved your token to a file here " . $helpers->tokenFile() . "!\n";
+            echo "    Hey, we saved your token to a file here " . $helpers->tokenFile() . "!\n";
 
             return false;
 
