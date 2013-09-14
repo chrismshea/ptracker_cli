@@ -24,16 +24,21 @@ class pivotalTrackerHelpers {
         fclose($pivotaltoken);
         return false;
     }
-    public function getFileContents($file, $field){
+
+    public function getFileContents($file, $field)
+    {
         $lines = file($file);
-        foreach (array_values($lines) AS $line) {
-            list ($key, $val) = explode('=', trim($line) );
-            if (trim($key) == $field) {
+        foreach ($lines as $line)
+        {
+            list ($key, $val) = explode('=', trim($line));
+            if (trim($key) == $field)
+            {
                 return $val;
             }
         }
         return false;
     }
+
     public function displayToken($token){
         echo ("\nTOKEN INFO:\n"
             . "    Token: " . $token . "\n"
