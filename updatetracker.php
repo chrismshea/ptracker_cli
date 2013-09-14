@@ -42,7 +42,6 @@ $helpers = new pivotalTrackerHelpers;
  * WELCOME
  *
  */
-
     // Let's set the stage, and hope that the user is paying attention to the output on the screen.
         echo  "\nUPDATING PIVOTAL TRACKER\n"
             . "    Please read and understand all output\n"
@@ -54,16 +53,13 @@ $helpers = new pivotalTrackerHelpers;
  * ENSURE WE HAVE A TOKEN
  *
  */
-
-    // Our main objective of this section is to obtain the User's token
-        $token = file_get_contents($helpers->tokenFile());
-
     // Does our .pivotaltoken file exist?
         if (!file_exists($helpers->tokenFile()))
         {
             $pivotaltracker->token = $pivotaltracker->getToken();
         }
         echo ($helpers->displayToken($token));
+        $token = file_get_contents($helpers->tokenFile());
 
 
 /**
@@ -71,7 +67,6 @@ $helpers = new pivotalTrackerHelpers;
  * WHAT PROJECT ARE WE USING
  *
  */
-
     // First we establish the location of the .git directory.  This tells us where to start looking for the Pivotal Tracker project id in the .git/hooks/prepare-commit-msg
 
         exec('git rev-parse --show-toplevel 2> /dev/null', $output);
