@@ -59,7 +59,8 @@ $helpers = new pivotalTrackerHelpers;
         $token = file_get_contents($helpers->tokenFile());
 
     // Does our .pivotaltoken file exist?
-        if (!file_exists($helpers->tokenFile())) {
+        if (!file_exists($helpers->tokenFile()))
+        {
             $pivotaltracker->token = $pivotaltracker->getToken();
         }
         echo ($helpers->displayToken($token));
@@ -81,18 +82,18 @@ $helpers = new pivotalTrackerHelpers;
 
     // If the prepare-commit-msg does not exist let's run the hooks command
 
-        if (!file_exists($helpers->hookFile($pRoot))) {
-            echo "\nChoose from the following projects: \n";
-            echo $pivotaltracker->getMyRecentProjects($token);
+        if (!file_exists($helpers->hookFile($pRoot)))
+        {
+            echo "    Please choose project id:\n"
+                ."    ----------------------------------------\n\n";
+            echo $pivotaltracker->getMyRecentProjects($token) . "\n"
+                ."    ----------------------------------------\n";
             exec('hooks');
         }
+        $pId = $helpers->getFileContents($helpers->hookFile($pRoot), 'project');
+        $pName = $pivotaltracker->getProject($token,$pId,'name');
+        echo "    Project Name/Id: " . $pName . " - " . $pId . "\n";
 
-        $project = $helpers->getFileContents($helpers->hookFile($pRoot), 'project');
-        $pName = $pivotaltracker->getProject($token,$project,'name');
-        echo "\n" . "Using project " . $project . " - " . $pName . "\n";
-die;
-        // Could we get by with this alone do we need to set $project at each statement?
-            $project = $helpers->getFileContents('.git/hooks/prepare-commit-msg', 'project');
 
 /**
  * Are you updating a story or creating a new one?
@@ -102,63 +103,57 @@ die;
  */
 
     // Let's go ahead and show them their stories which are not accepted
-        echo "\n" . $cStories = $pivotaltracker->getStories($token,$project);
-        fwrite(STDOUT, "\nChoose one of the story id's or enter 'new':\n");
+        echo "\nSTORIES:\n";
+        echo $cStories = $pivotaltracker->getStories($token,$pId);
+        fwrite(STDOUT, "\n    Story id [story_id/new]: ");
         $sOption = (trim(fgets(STDIN)));
 
     // If they choose to create a new story let's they ask them which type of story
-        if ($sOption == 'new'){
-        fwrite(STDOUT, "\nStory Type (feature, bug, chore, release):\n");
+        if ($sOption == 'new')
+        {
+        fwrite(STDOUT, "\n    Story type [feature/bug/chore/release]: ");
         $sType = (trim(fgets(STDIN)));
 
         // If they want to create a bug we will ask them if they would like to include all of the log files
-            if ($sType == 'bug'){
-            fwrite(STDOUT, "\nDo you want to attach all logs?:\n");
+            if ($sType == 'bug')
+            {
+            fwrite(STDOUT, "\n    Attach logs [yes/no]: ");
             $sLogify = (trim(fgets(STDIN)));
 
             // If they want to include all of the logs this step will upload them to the project for processing later
-                if ($sLogify == 'yes'){
+                if ($sLogify == 'yes')
+                {
                     $sLogs = glob("$pFolder/var/{log,report}/*", GLOB_BRACE);
                     $sLogs[] = "/var/log/apache2/error.log";
                     echo "Uploading:" . " ";
                     print_r($sLogs);
                     $pUploads = $pivotaltracker->addUploads($token,$project,$sLogs);
-                    foreach($pUploads as $val) {print $val;}
+                    foreach($pUploads as $val)
+                    {
+                        print $val;
+                    }
                 }
-
-            // So I don't think we need this here.  Dennis?
-                else {return true;}
             }
-
-        // And I think that applies to this also.
-            else {return true;}
-
         // Let's finish collecting information for the remaining areas of the story.
-            fwrite(STDOUT, "\nStory Name:\n");
+            fwrite(STDOUT, "\n    Story Name: ");
             $sName = (trim(fgets(STDIN)));
-            fwrite(STDOUT, "\nStory Desc:\n");
+            fwrite(STDOUT, "\n    Story Desc: ");
             $sDesc = (trim(fgets(STDIN)));
-            fwrite(STDOUT, "\nStory Comment:\n");
+            fwrite(STDOUT, "\n    Story Comment: ");
             $sComm = (trim(fgets(STDIN)));
             $story = $pivotaltracker->addStory("$token", "$project", "$sType", "$sName", "$sDesc", "$sComm", "$pUploads");
             echo "Created storyId: " . $story;
         }
 
     // Ok they have chosen to contribute to an existing story. Let's set $story as that chosen.
-        else {$story = $sOption;}
-
+        else
+        {
+            $story = $sOption;
+            $pivotaltracker->updateStory($token,$project,$story,$sStatus,$sComment,$sTask,$sAttachment);
+            echo "Updated storyId: " . $story;
+        }
     //Status
-
     //Comment
-
     //Tasks
-
     //Attachment
-
-        $pivotaltracker->updateStory($token,$project,$story,$sStatus,$sComment,$sTask,$sAttachment);
-        echo "Updated storyId: " . $story;
-
-echo "\nWhat happened?\n";
-die;
-
 ?>

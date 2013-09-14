@@ -201,8 +201,7 @@
             // Return an array
             $json_arrays = json_decode($json,true);
             foreach ($json_arrays as $json_array) {
-                echo $json_array['id'] . " | " . $json_array['story_type'] . " | " . $json_array['name'];
-                echo "\n";
+                echo "    " . $json_array['id'] . " | " . $json_array['story_type'] . " | " . $json_array['name'] . "\n";
             }
             // Return an object
             return false;
@@ -295,7 +294,7 @@
             date_default_timezone_set('UTC');
             $format = 'Y-m-d\TH:i:s';
             $date = date ($format);
-            $limit = date($format, strtotime ( '-7 day' . $date ) );
+            $limit = date($format, strtotime ( '-30 day' . $date ) );
             //echo $limit;
 
             $cmd = "curl -s -H \"X-TrackerToken: $token\" "
@@ -305,9 +304,15 @@
 
             // Return an array
             $json_arrays = json_decode($json,true);
+            $tProjects=array();
             foreach ($json_arrays as $json_array) {
-                echo $json_array['project']['name'] . " - " . $json_array['project']['id'];
-                echo "\n";
+                $idx = $json_array['project']['name'];
+                    if (!isset($tProjects[$idx])) $tProjects[$idx]=$json_array;
+            }
+            $tProjects = array_values($tProjects);
+            foreach ($tProjects as $tProject)
+            {
+                echo "    " . $tProject['project']['id'] . " - " . $tProject['project']['name'] . "\n";
             }
             return false;
         }
@@ -316,11 +321,11 @@
         // getProject
         // -----
         //Returns the value of the filed specified fro the given project id
-        public function getProject($token, $project, $field){
+        public function getProject($token, $pId, $field){
 
             $cmd = "curl -s -H \"X-TrackerToken: $token\" "
                 . "-X GET "
-                . "https://www.pivotaltracker.com/services/v5/projects/$project";
+                . "https://www.pivotaltracker.com/services/v5/projects/$pId";
             $json = shell_exec($cmd);
 
             // Return an array
