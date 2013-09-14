@@ -161,9 +161,10 @@
 
                 // Ship IT! and capture the response
                 $pUploads[] = curl_exec($ch);
+                return $pUploads;
             }
             curl_close($ch);
-            return $pUploads;
+            return NULL;
         }
 
             /**
@@ -283,8 +284,10 @@
         public function getToken() {
 
             // Let's ask the user to login to tracker.
-            $username = trim(shell_exec("read -p 'username: ' username\necho \$username"));
-            echo "password: ";
+            echo "\n    Login to tracker and we will create a tokenfile";
+            fwrite(STDOUT, "\n    username: ");
+            $username = (trim(fgets(STDIN)));
+            fwrite(STDOUT, "    password: ");
             system('stty -echo');
             $password = trim(fgets(STDIN));
             system('stty echo');

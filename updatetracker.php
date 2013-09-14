@@ -17,11 +17,11 @@
  *
  * NEXT STEPS:
  * Feature Requests:
- *     1. Make sure all Story fields do not need to be answered.
- *     2. Create a function for logify
+ *     1. Create a function for logify
+ *     2. Add ability to attach files
+ *     3. Add ability to add tasks
  *
  * Bugs:
- *     1. Currently story creation does not work
  *
  */
 ?>
@@ -119,8 +119,8 @@ $helpers = new pivotalTrackerHelpers;
 
         // We have collectetd the information now create a new story.
             $sInfo = $pivotaltracker->addStory("$token", "$pId", "$sType", "$sName", "$sDesc");
-            $sId = $sInfo[sId];
-            $sUrl = $sInfo[sUrl];
+            $sId = $sInfo['sId'];
+            $sUrl = $sInfo['sUrl'];
             echo "\n    Created story: " . $sId
                 ."\n    At: " . $sUrl . "\n";
 
