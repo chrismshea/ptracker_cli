@@ -143,21 +143,18 @@ $helpers = new pivotalTrackerHelpers;
                     $pUploads = $pivotaltracker->addUploads($token,$pId,$sLogs);
                     $sComm = "Attaching magento and server logs";
 
-                // Convert Uploads to a String
+                // Convert Uploads to a String and attach with comment
                     $pUploadsString = implode(",",$pUploads);
                     $cResult = $pivotaltracker->addComment($token,$pId,$sId,$sComm,$pUploadsString);
                     echo "\n    Comment: " . $cResult . "\n";
                 }
             }
-
-        // If we have uploaded logs lets attach them to the story, and comment.
         }
-    // Ok they have chosen to contribute to an existing story. Let's set $story as that chosen.
+    // Ok they have chosen to contribute to an existing story.
         else
         {
             fwrite(STDOUT, "\n    Story Comment: ");
             $sComm = (trim(fgets(STDIN)));
-
             $story = $sOption;
             $pivotaltracker->updateStory($token,$project,$story,$sStatus,$sComment,$sTask,$sAttachment);
             echo "Updated storyId: " . $story;

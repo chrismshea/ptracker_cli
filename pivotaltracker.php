@@ -206,7 +206,7 @@
         // getStories
         // -----
         // Get a list of stories from a project, optional filter
-        public function getStories($token, $project, $filter = '') {
+        public function getStories($token, $project, $state = '', $filter = 'state:unscheduled,unstarted,started,finished,delivered,rejected') {
 
             // Encode the filter
             $filter = urlencode($filter);
@@ -220,13 +220,18 @@
                 . "-X GET "
                 . "https://www.pivotaltracker.com/services/v5/projects/$project/stories";
             // Add the filter, if it was specified
+            if ($state == 'true') $cmd .= "?with_state=unstarted";
             if ($filter != '') $cmd .= "?filter=$filter";
             $json = shell_exec($cmd);
 
             // Return an array
             $json_arrays = json_decode($json,true);
             foreach ($json_arrays as $json_array) {
-                echo "    " . $json_array['id'] . " | " . $json_array['story_type'] . " | " . $json_array['name'] . "\n";
+                echo "    " . $json_array['id'] . " | "
+                    . $json_array['current_state'] . " | "
+                    . $json_array['story_type'] . " | "
+                    . $json_array['estimate'] . " | "
+                    . $json_array['name'] . "\n";
             }
             // Return an object
             return false;
