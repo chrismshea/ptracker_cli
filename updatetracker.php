@@ -21,7 +21,7 @@
  *     2. Create a function for logify
  *
  * Bugs:
- *     1. Currently bug creation does not work when using logify
+ *     1. Currently story creation does not work
  *
  */
 ?>
@@ -39,7 +39,7 @@ $helpers = new pivotalTrackerHelpers;
 
 /**
  *
- * How about a brief introduction before we begin.
+ * WELCOME
  *
  */
 
@@ -51,7 +51,7 @@ $helpers = new pivotalTrackerHelpers;
 
 /**
  *
- * Before we begin let's make sure the user has a token
+ * ENSURE WE HAVE A TOKEN
  *
  */
 
@@ -68,7 +68,7 @@ $helpers = new pivotalTrackerHelpers;
 
 /**
  *
- * Let's start with the project we are contributing to
+ * WHAT PROJECT ARE WE USING
  *
  */
 
@@ -96,10 +96,9 @@ $helpers = new pivotalTrackerHelpers;
 
 
 /**
- * Are you updating a story or creating a new one?
  *
- * At this point we have the basics to interact with tracker.
- * We have their token setup, and we have the project id they will be contributing too.
+ * STORY TIME
+ *
  */
 
     // Let's go ahead and show them their stories which are not accepted
@@ -108,46 +107,57 @@ $helpers = new pivotalTrackerHelpers;
         fwrite(STDOUT, "\n    Story id [story_id/new]: ");
         $sOption = (trim(fgets(STDIN)));
 
-    // If they choose to create a new story let's they ask them which type of story
+    // If they choose to create a new story we'll get the required information
+
+        // Establishing these variables before the if
+
         if ($sOption == 'new')
         {
-        fwrite(STDOUT, "\n    Story type [feature/bug/chore/release]: ");
-        $sType = (trim(fgets(STDIN)));
+            fwrite(STDOUT, "\n    Story type [feature/bug/chore/release]: ");
+            $sType = (trim(fgets(STDIN)));
+
+            fwrite(STDOUT, "\n    Story Name: ");
+            $sName = (trim(fgets(STDIN)));
+
+            fwrite(STDOUT, "\n    Story Desc: ");
+            $sDesc = (trim(fgets(STDIN)));
+
+        // We have collectetd the information now create a new story.
+            $sInfo = $pivotaltracker->addStory("$token", "$pId", "$sType", "$sName", "$sDesc");
+            $sId = $sInfo[sId];
+            $sUrl = $sInfo[sUrl];
+            echo "\n    Created story: " . $sId
+                ."\n    At: " . $sUrl . "\n";
 
         // If they want to create a bug we will ask them if they would like to include all of the log files
             if ($sType == 'bug')
             {
-            fwrite(STDOUT, "\n    Attach logs [yes/no]: ");
-            $sLogify = (trim(fgets(STDIN)));
+                fwrite(STDOUT, "\n    Attach logs [yes/no]: ");
+                $sLogify = (trim(fgets(STDIN)));
 
             // If they want to include all of the logs this step will upload them to the project for processing later
                 if ($sLogify == 'yes')
                 {
-                    $sLogs = glob("$pFolder/var/{log,report}/*", GLOB_BRACE);
+                    $sLogs = glob("$pRoot/var/{log,report}/*", GLOB_BRACE);
                     $sLogs[] = "/var/log/apache2/error.log";
-                    echo "Uploading:" . " ";
-                    print_r($sLogs);
-                    $pUploads = $pivotaltracker->addUploads($token,$project,$sLogs);
-                    foreach($pUploads as $val)
-                    {
-                        print $val;
-                    }
+                    $pUploads = $pivotaltracker->addUploads($token,$pId,$sLogs);
+                    $sComm = "Attaching magento and server logs";
+
+                // Convert Uploads to a String
+                    $pUploadsString = implode(",",$pUploads);
+                    $cResult = $pivotaltracker->addComment($token,$pId,$sId,$sComm,$pUploadsString);
+                    echo "\n    Comment: " . $cResult . "\n";
                 }
             }
-        // Let's finish collecting information for the remaining areas of the story.
-            fwrite(STDOUT, "\n    Story Name: ");
-            $sName = (trim(fgets(STDIN)));
-            fwrite(STDOUT, "\n    Story Desc: ");
-            $sDesc = (trim(fgets(STDIN)));
-            fwrite(STDOUT, "\n    Story Comment: ");
-            $sComm = (trim(fgets(STDIN)));
-            $story = $pivotaltracker->addStory("$token", "$project", "$sType", "$sName", "$sDesc", "$sComm", "$pUploads");
-            echo "Created storyId: " . $story;
-        }
 
+        // If we have uploaded logs lets attach them to the story, and comment.
+        }
     // Ok they have chosen to contribute to an existing story. Let's set $story as that chosen.
         else
         {
+            fwrite(STDOUT, "\n    Story Comment: ");
+            $sComm = (trim(fgets(STDIN)));
+
             $story = $sOption;
             $pivotaltracker->updateStory($token,$project,$story,$sStatus,$sComment,$sTask,$sAttachment);
             echo "Updated storyId: " . $story;

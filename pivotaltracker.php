@@ -18,7 +18,8 @@
         // addStory
         // -----
         // Add a story to an existing project
-        public function addStory($token, $project, $sType, $sName, $sDesc, $sComm, $pUploads) {
+        public function addStory($token, $pId, $sType, $sName, $sDesc)
+        {
 
             // Encode the description
             $sDesc = htmlentities($sDesc);
@@ -32,20 +33,43 @@
                 . "-X POST -H \"Content-type: application/json\" "
                 . "-d '{\"name\":\"$sName\","
                 . "\"story_type\":\"$sType\","
-                . "\"description\":\"$sDesc\","
-                . "\"file_attachments\":[print_r($pUploads)],"
-                . "\"text\":\"$sComm\"}' "
-                . "\"https://www.pivotaltracker.com/services/v5/projects/$project/stories\"";
-            print_r($cmd);
-            echo $json = shell_exec($cmd);
+                . "\"description\":\"$sDesc\"}' "
+                . "\"https://www.pivotaltracker.com/services/v5/projects/$pId/stories\"";
+            $json = shell_exec($cmd);
 
             // Return an object
             $json_array = json_decode($json,true);
-            echo $json_array;
-            $story = $json_array['id'];
-            return $story;
-
+            $sId = $json_array['id'];
+            $sUrl = $json_array['url'];
+            $sInfo = array(
+                "sId"  => $sId,
+                "sUrl" => $sUrl);
+            return $sInfo;
         }
+
+
+        // ----------
+        // addComment
+        // -----
+        // Add a comment to a story with or without attachments
+        public function addComment($token, $pId, $sId, $sComm, $pUploadsString)
+
+        {
+            // Create the new story
+            $cmd = "curl -s -H \"X-TrackerToken: $token\" "
+                . "-X POST -H \"Content-type: application/json\" "
+                . "-d '{\"file_attachments\":["
+                . $pUploadsString . "],"
+                . "\"text\":\"$sComm\"}' "
+                . "\"https://www.pivotaltracker.com/services/v5/projects/$pId/stories/$sId/comments?fields=%3Adefault%2Cfile_attachment_ids\"";
+            $json = shell_exec($cmd);
+
+            // Return an object
+            $json_array = json_decode($json,true);
+            $cResult = $json_array['text'];
+            return $cResult;
+        }
+
 
         // ----------
         // addTask
@@ -91,11 +115,13 @@
         // addUploads
         // -----
         // Add uploads to a project, the response will be used to add a comment and attach to a story.
-        public function addUploads($token, $project, $sLogs) {
+        public function addUploads($token, $project, $sLogs)
+        {
 
             $tUploads = "https://www.pivotaltracker.com/services/v5/projects/$project/uploads";
             $ch = curl_init();
-            foreach($sLogs as $sLog) {
+            foreach($sLogs as $sLog)
+            {
 
                 // Let's establish the needed options for the post
                 curl_setopt_array($ch, array(
@@ -114,11 +140,10 @@
 
                 // Ship IT! and capture the response
                 $pUploads[] = curl_exec($ch);
-                }
-            curl_close($ch);
-            var_dump($pUploads);
-            return $pUploads;
             }
+            curl_close($ch);
+            return $pUploads;
+        }
 
             /**
              * @param $story
