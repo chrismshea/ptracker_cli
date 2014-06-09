@@ -5,6 +5,10 @@
  * Date: 8/29/13
  * Updated: 9/7/13 - Chris Shea "Adding comments"
  *
+ * DISCLAIMER:
+ * Don't blame me.  Don't complain, contribute!  If you feel like any of this could be better please fork, and submit
+ *     a pull request.
+ *
  *
  * CONTENTS:
  * This file takes a command line user through the process of:
@@ -83,7 +87,7 @@ $helpers = new pivotalTrackerHelpers;
                 ."    ----------------------------------------\n\n";
             echo $pivotaltracker->getMyRecentProjects($token) . "\n"
                 ."    ----------------------------------------\n";
-            exec('hooks');
+            exec('hooks.sh');
         }
         $pId = $helpers->getFileContents($helpers->hookFile($pRoot), 'project');
         $pName = $pivotaltracker->getProject($token,$pId,'name');
