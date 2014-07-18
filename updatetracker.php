@@ -71,7 +71,9 @@ $helpers = new pivotalTrackerHelpers;
  * WHAT PROJECT ARE WE USING
  *
  */
-    // First we establish the location of the .git directory.  This tells us where to start looking for the Pivotal Tracker project id in the .git/hooks/prepare-commit-msg
+    // First we establish the location of the .git directory.
+    // Once we locate git we check for the prepare-commit-msg hook which would contain the Tracker Project ID
+    // See Dependencies in the README
 
         exec('git rev-parse --show-toplevel 2> /dev/null', $output);
         $pRoot = $output[0];
